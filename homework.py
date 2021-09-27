@@ -2,7 +2,6 @@ import os
 import time
 import requests
 import logging
-import telegram.ext
 from dotenv import load_dotenv
 from telegram import Bot
 from telegram.ext import Updater
