@@ -72,7 +72,7 @@ def main():
     updater.idle()
     while True:
         try:
-            current_timestamp = int(time.time())  # Начальное значение timestamp
+            current_timestamp = int(time.time())
             homework = get_homeworks(
                 current_timestamp)['homeworks'][0]['status']
             send_message(parse_homework_status(homework))
