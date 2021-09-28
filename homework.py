@@ -9,13 +9,14 @@ from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 
-PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-url = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
-headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 
-bot = Bot(token=(TELEGRAM_TOKEN))  # иниц и передать как арг в main
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
+PRAKTIKUM_URL = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
+PRAKTIKUM_HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
+
+bot = Bot(token=(TELEGRAM_TOKEN))
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -37,32 +38,29 @@ STATUS_HT = {
 
 
 def parse_homework_status(homework):
-    status_d = STATUS_HT['rejected']
     homework_name = homework.get('homework_name')
-    if homework.get('status') == 'rejected':
-        verdict = status_d
-    else:
-        verdict = 'Ревьюеру всё понравилось, работа зачтена!'
+    status = homework.get('status')
+    if status not in STATUS_HT:
+        return 'работа взята в ревью'
+    verdict = STATUS_HT[status]
     return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
 
 
 def get_homeworks(current_timestamp):
     try:
         payload = {'from_date': (current_timestamp)}
-        homework_statuses = requests.get(url, headers=headers, params=payload)
-    # print(homework_statuses.json())
+        homework_statuses = requests.get(
+            PRAKTIKUM_URL, headers=PRAKTIKUM_HEADERS, params=payload)
         return homework_statuses.json()
     except Exception as e:
         logger.error(e, exc_info=True)
-        time.sleep(5)
 
 
 def send_message(message):
     try:
-        return bot.send_message(CHAT_ID, message)
+        return bot.send_message(TELEGRAM_CHAT_ID, message)
     except Exception as e:
         logger.error(e, exc_info=True)
-        time.sleep(5)
 
 
 def main():
