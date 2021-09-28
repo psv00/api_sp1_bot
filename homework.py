@@ -15,7 +15,7 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 url = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 
-
+bot = Bot(token=(TELEGRAM_TOKEN))  # иниц и передать как арг в main
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -65,15 +65,14 @@ def send_message(message):
         time.sleep(5)
 
 
-def main(bot):
-    bot = Bot(token=(TELEGRAM_TOKEN))
+def main():
     logger.debug('bot is running')
     updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
     updater.start_polling()
     updater.idle()
     while True:
         try:
-            current_timestamp = int(time.time())
+            current_timestamp = int(time.time())  # Начальное значение timestamp
             homework = get_homeworks(
                 current_timestamp)['homeworks'][0]['status']
             send_message(parse_homework_status(homework))
